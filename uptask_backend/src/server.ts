@@ -5,6 +5,7 @@ import morgan from 'morgan'
 import { corsConfig } from "./config/cors"
 import { connectDB } from "./config/db"
 import projectRoutes from './routes/projectRoutes'
+import authRoutes from './routes/authRoutes'
 
 dotenv.config() // hacemos que pueda tomar las variables de entorno
 connectDB()
@@ -15,6 +16,7 @@ app.use(express.json()) // hacer que acepte el formato json para las peticiones
 
 // routes
 app.use('/api/projects', projectRoutes)
+app.use('/api/auth', authRoutes)
 
 
 export default app
