@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import { hashPassword } from '../utils/auth'
+import { checkPassword, hashPassword } from '../utils/auth'
 import User from '../@models/User'
 import Token from '../@models/Token'
 import { generateToken } from '../utils/token'
@@ -52,7 +52,7 @@ export class AuthController {
             
             if(!tokenExists) {
                 const error = new Error('El token no es válido')
-                res.status(401).json({error: error.message})
+                res.status(404).json({error: error.message})
             }
 
             // activate user
@@ -65,6 +65,49 @@ export class AuthController {
             ])
 
             res.send('Cuenta confirmada correctamente')
+
+        } catch (error) {
+            res.status(500).json({error: 'Hubo un error'})
+        }
+    }
+
+    static login = async (req : Request, res : Response) => {
+        try {
+            // check if user exists
+            const { email, password } = req.body
+            const user = await User.findOne({email})
+            if (!user) {
+                const error = new Error('Usuario no encontrado')
+                res.status(404).json({error: error.message})
+            }
+            // check is user is confirmed
+            if (!user.confirmed) {
+                // generate new token
+                const token = new Token()
+                token.user = user.id
+                token.token = generateToken()
+                await token.save()
+
+                // send email
+                AuthEmail.sendConfirmationEmail({
+                    email: user.email,
+                    name: user.name,
+                    token: token.token
+                })
+
+                const error = new Error('Usuario no confirmado, hemos enviado un e-mail de confirmación')
+                res.status(401).json({error: error.message})
+            }
+
+            // check password
+            const isPasswordCorrect = await checkPassword(password, user.password)
+            if (!isPasswordCorrect) {
+                const error = new Error('Contraseña incorrecta')
+                res.status(401).json({error: error.message})
+            }
+
+            // if everything is correct
+            res.send('Usuario logueado correctamente')
 
         } catch (error) {
             res.status(500).json({error: 'Hubo un error'})

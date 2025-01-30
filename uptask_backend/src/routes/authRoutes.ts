@@ -5,7 +5,7 @@ import { handleInputErrors } from '../middleware/validation'
 
 const router = Router()
 
-router.post('/create-account', 
+router.post('/register', 
     body('name')
         .notEmpty().withMessage('El nombre no puede ir vacío'),
     body('password')
@@ -28,6 +28,15 @@ router.post('/confirm-account',
         .notEmpty().withMessage('El token no puede ir vacío'),
     handleInputErrors,
     AuthController.confirmAccount
+)
+
+router.post('/login', 
+    body('email')
+        .isEmail().withMessage('Email no válido'),
+    body('password')
+        .notEmpty().withMessage('La contraseña no puede ir vacía'),
+    handleInputErrors,
+    AuthController.login
 )
 
 export default router
