@@ -2,15 +2,28 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { RequestConfirmationCodeForm } from "../../types";
 import ErrorMessage from "@/components/ErrorMessage";
+import { useMutation } from "@tanstack/react-query";
+import { requestConfirmationCode } from "@/api/AuthAPI";
+import { toast } from "react-toastify";
 
-export default function RegisterView() {
+export default function RequestNewCodeView() {
     const initialValues: RequestConfirmationCodeForm = {
         email: ''
     }
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({ defaultValues: initialValues });
+    const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues: initialValues });
 
-    const handleRequestCode = (formData: RequestConfirmationCodeForm) => {}
+    const { mutate } = useMutation({
+        mutationFn: requestConfirmationCode,
+        onError(error) {
+            toast.error(error.message)
+        },
+        onSuccess(data) {
+            toast.success(data)
+        }
+    })
+
+    const handleRequestCode = (formData: RequestConfirmationCodeForm) => mutate(formData)
 
     return (
         <>
