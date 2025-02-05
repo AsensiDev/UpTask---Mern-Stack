@@ -4,6 +4,7 @@ import User from '../@models/User'
 import Token from '../@models/Token'
 import { generateToken } from '../utils/token'
 import { AuthEmail } from '../emails/AuthEmail'
+import { generateJWT } from '../utils/jwt'
 
 export class AuthController {
 
@@ -106,8 +107,10 @@ export class AuthController {
                 res.status(401).json({error: error.message})
             }
 
+            const token = generateJWT({id: user.id})
+
             // if everything is correct
-            res.send('Usuario logueado correctamente')
+            res.send(token)
 
         } catch (error) {
             res.status(500).json({error: 'Hubo un error'})

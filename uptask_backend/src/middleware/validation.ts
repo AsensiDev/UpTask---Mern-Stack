@@ -8,5 +8,6 @@ export const handleInputErrors = (req: Request, res: Response, next: NextFunctio
         res.status(400).json({ errors: errors.array() })
         return
     }
+    
     next()
 }
