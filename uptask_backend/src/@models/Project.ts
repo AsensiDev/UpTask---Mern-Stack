@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, PopulatedDoc, Types } from 'mongoose'
 import { ITask } from './Task'
+import { IUser } from './User'
 
 // tipado de typescript
 export interface IProject extends Document {
@@ -7,6 +8,8 @@ export interface IProject extends Document {
     clientName: string
     description: string
     tasks: PopulatedDoc<ITask & Document>[]
+    manager: PopulatedDoc<IUser & Document>
+    team: PopulatedDoc<IUser & Document>[]
 }
 
 //schema para la db de mongoose
@@ -31,7 +34,17 @@ const ProjectSchema: Schema = new Schema({
             type: Types.ObjectId,
             ref: 'Task'
         }
-    ]
+    ],
+    manager: {
+        type: Types.ObjectId,
+        ref: 'User'
+    },
+    team: [
+        {
+            type: Types.ObjectId,
+            ref: 'User'
+        }
+    ],
 }, {timestamps: true})
 
 // crea modelo llamado Project utilizando el esquema ProjectSchema
