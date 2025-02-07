@@ -43,22 +43,22 @@ export class TeamMemberController {
         }
 
         // add member to the team
-        req.body.team.push(user.id)
+        req.project.team.push(user.id)
         await req.project.save()
 
         res.json('Usuario agregado correctamente')
     }
 
     static removeMenberById = async (req: Request, res: Response) => {
-        const { id } = req.body
+        const { userId } = req.params
 
-        if(!req.project.team.some(team => team.toString() === id)) {
+        if(!req.project.team.some(team => team.toString() === userId)) {
             const error = new Error('El usuario no existe en el proyecto')
             res.status(409).json({error: error.message})
             return
         }
 
-        req.project.team = req.project.team.filter( teamMember => teamMember.toString() !== id)
+        req.project.team = req.project.team.filter( teamMember => teamMember.toString() !== userId)
 
         await req.project.save()
         res.json('Usuario eliminado correctamente')
