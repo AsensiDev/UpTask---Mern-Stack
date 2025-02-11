@@ -35,3 +35,13 @@ export async function taskBelongsToProject( req: Request, res: Response, next: N
     }
     next()
 }
+
+export async function hasAuthorization( req: Request, res: Response, next: NextFunction) {
+    
+    if(req.user.id.toString() !== req.project.manager.toString()) {
+        const error = new Error('La Tarea no Existe en el Proyecto')
+        res.status(400).json({error: error.message})
+        return
+    }
+    next()
+}
