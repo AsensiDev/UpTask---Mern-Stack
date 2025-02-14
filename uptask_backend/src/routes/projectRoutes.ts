@@ -30,8 +30,12 @@ router.get('/:id',
     handleInputErrors,
     ProjectController.getProjectById
 )
-router.put('/:id',
-    param('id')
+
+// ejecuta el middleware projectExists siempre que la ruta contenga projectId
+router.param('projectId', projectExists)
+
+router.put('/:projectId',
+    param('projectId')
         .isMongoId().withMessage('ID no Válido'),
     body('projectName')
         .notEmpty().withMessage('El nombre del proyecto es Obligatorio'),
@@ -40,18 +44,19 @@ router.put('/:id',
     body('description')
         .notEmpty().withMessage('La descripcion es obligatoria'),
     handleInputErrors,
+    hasAuthorization,
     ProjectController.updateProject
 )
-router.delete('/:id',
-    param('id')
+router.delete('/:projectId',
+    param('projectId')
         .isMongoId().withMessage('ID no Válido'),
     handleInputErrors,
+    hasAuthorization,
     ProjectController.deleteProjectById
 )
 
 /** Routes for Tasks */
-// ejecuta el middleware projectExists siempre que la ruta contenga projectId
-router.param('projectId', projectExists)
+
 
 router.post('/:projectId/tasks',
     hasAuthorization,

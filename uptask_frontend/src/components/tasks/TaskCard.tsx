@@ -1,4 +1,4 @@
-import { Task } from "@/types/index"
+import { TaskProject } from "@/types/index"
 import { Menu, Transition } from "@headlessui/react"
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid"
 import { Fragment } from "react"
@@ -9,7 +9,7 @@ import { toast } from "react-toastify"
 import { useDraggable } from '@dnd-kit/core'
 
 type TaskCardProps = {
-    task: Task
+    task: TaskProject
     canEdit: boolean
 }
 
@@ -36,6 +36,12 @@ export default function TaskCard({task, canEdit} : TaskCardProps) {
 
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        padding: '1.25rem',
+        backgroundColor: '#fff',
+        width: '300px',
+        display: 'flex',
+        borderWidth: '1px',
+        borderColor: 'rgb(203 213 225 / var(--tw-border-opacity))'
     } : undefined
 
 
@@ -48,11 +54,9 @@ export default function TaskCard({task, canEdit} : TaskCardProps) {
             style={style}
             className="min-w-0 flex flex-col gap-y-4"
         >
-            <button 
-                type="button"
+            <p 
                 className="text-xl font-bold text-slate-600 text-left"
-                onClick={() => navigate(location.pathname + `?viewTask=${task._id}`)}
-            >{task.name}</button>
+            >{task.name}</p>
             <p className="text-slate-500">{task.description}</p>
         </div>
         <div className="flex shrink-0  gap-x-6">

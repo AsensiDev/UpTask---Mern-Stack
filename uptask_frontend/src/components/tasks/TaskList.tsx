@@ -1,18 +1,37 @@
-import { Task } from "@/types/index"
+import { Project, TaskProject, TaskStatus } from "@/types/index"
 import { DndContext, DragEndEvent } from "@dnd-kit/core"
 import TaskCard from "./TaskCard"
 import { statusTranslations } from "@/locales/es"
 import DropTask from "./DropTask"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "react-toastify"
+import { updateStatus } from "@/api/TaskAPI"
+import { useParams } from "react-router-dom"
 
 type TaskListProps = {
-    tasks: Task[],
+    tasks: TaskProject[],
     canEdit: boolean
 }
 
 export default function TaskList({tasks, canEdit }: TaskListProps) {
 
+    const params = useParams()
+    const projectId = params.projectId!
+    const queryClient = useQueryClient()
+
+    const { mutate } = useMutation({
+        mutationFn: updateStatus,
+        onError: (error) => {
+            toast.error(error.message)
+        },
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({queryKey: ['project', projectId]})
+            toast.success(data)
+        }
+    })
+
     type GroupedTasks = {
-        [key: string]: Task[]
+        [key: string]: TaskProject[]
     }
 
     const initialStatusGroups : GroupedTasks = {
@@ -42,7 +61,20 @@ export default function TaskList({tasks, canEdit }: TaskListProps) {
     const handleDragEnd = (e: DragEndEvent) => {
         const { over, active } = e
         if(over && over.id) {
-            console.log('valido...')
+            const taskId = active.id.toString()
+            const status = over.id as TaskStatus
+            mutate({ projectId, taskId, status })
+
+            queryClient.setQueryData(['project', projectId], (prevData : Project) => {
+                const updatedTasks = prevData.tasks.map((task) => {
+                    if(task._id === taskId) {
+                        return {...task, status}
+                    }
+                    return task
+                })
+
+                return {...prevData, tasks: updatedTasks}
+            }) 
         }
     }
 

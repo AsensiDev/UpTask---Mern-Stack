@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, PopulatedDoc, Types } from 'mongoose'
-import { ITask } from './Task'
+import Task, { ITask } from './Task'
 import { IUser } from './User'
+import Note from './Note'
 
 // tipado de typescript
 export interface IProject extends Document {
@@ -46,6 +47,22 @@ const ProjectSchema: Schema = new Schema({
         }
     ],
 }, {timestamps: true})
+
+// middleware
+ProjectSchema.pre('deleteOne', {
+    document: true,
+    query: false
+}, async function() {
+    const projectId = this._id
+    if(!projectId) return
+
+    const tasks = await Task.find({project: projectId})
+    for(const task of tasks) {
+        await Note.deleteMany({task: task.id})
+    }
+    
+    await Task.deleteMany({project: projectId})
+})
 
 // crea modelo llamado Project utilizando el esquema ProjectSchema
 const Project = mongoose.model<IProject>('Project', ProjectSchema)
